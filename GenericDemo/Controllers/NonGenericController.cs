@@ -23,7 +23,7 @@ namespace GenericDemo.Controllers
                     string newFileName = Path.ChangeExtension(Path.GetRandomFileName(), Path.GetExtension(fileName));
                     string filePath = Path.Combine(folder, newFileName);
 
-                    await using FileStream fs = new(filePath, FileMode.Create);
+                    using FileStream fs = new(filePath, FileMode.Create);
                     await request.File.OpenReadStream().CopyToAsync(fs);
 
                     response = "File uploaded successfully";
