@@ -1,4 +1,5 @@
 ﻿using GenericDemo.Dtos;
+using GenericDemo.Services.NonGeneric;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GenericDemo.Controllers
@@ -23,8 +24,16 @@ namespace GenericDemo.Controllers
                     string newFileName = Path.ChangeExtension(Path.GetRandomFileName(), Path.GetExtension(fileName));
                     string filePath = Path.Combine(folder, newFileName);
 
-                    using FileStream fs = new(filePath, FileMode.Create);
-                    await request.File.OpenReadStream().CopyToAsync(fs);
+                    using (FileStream fs = new(filePath, FileMode.Create))
+                    {
+
+                        await request.File.OpenReadStream().CopyToAsync(fs);
+                        // 在同一個程序中, 若要接續讀出剛才的存檔檔案, 必須手動Flush以關閉串流
+                        await fs.FlushAsync();
+                    }
+
+                    TextFileProccessor proccessor = new TextFileProccessor();
+                    var output = await proccessor.LoadData(filePath);
 
                     response = "File uploaded successfully";
                 }
