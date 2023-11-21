@@ -10,17 +10,35 @@ namespace GenericDemo.Controllers
 
 
         [HttpPost]
-        public ActionResult Post([FromForm] GiftImportRequest request)
+        public async Task<IActionResult> Post([FromForm] GiftImportRequest request)
         {
-            if (request.File != null)
+            try
             {
-                string folder = "Uploads";
-                string fileName = Guid.NewGuid().ToString() + "_" + request.File.FileName;
-                string filePath = Path.Combine(folder, fileName);
-                request.File.CopyTo(new FileStream(filePath, FileMode.Create));
-            }
+                string response = string.Empty;
 
-            return Ok("假裝完成");
+                if (request.File != null)
+                {
+                    string folder = "Uploads";
+                    string fileName = request.File.FileName;
+                    string newFileName = Path.ChangeExtension(Path.GetRandomFileName(), Path.GetExtension(fileName));
+                    string filePath = Path.Combine(folder, newFileName);
+
+                    await using FileStream fs = new(filePath, FileMode.Create);
+                    await request.File.OpenReadStream().CopyToAsync(fs);
+
+                    response = "File uploaded successfully";
+                }
+                else
+                {
+                    return BadRequest("No file provided in the request");
+                }
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internet Server Error: {ex.Message}");
+            }
         }
     }
 }
