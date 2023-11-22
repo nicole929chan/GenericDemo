@@ -21,7 +21,8 @@ namespace GenericDemo.Controllers
                 {
                     string folder = "Uploads";
                     string fileName = request.File.FileName;
-                    string newFileName = Path.ChangeExtension(Path.GetRandomFileName(), Path.GetExtension(fileName));
+                    string randomName = Path.GetRandomFileName();
+                    string newFileName = Path.ChangeExtension(randomName, Path.GetExtension(fileName));
                     string filePath = Path.Combine(folder, newFileName);
 
                     using (FileStream fs = new(filePath, FileMode.Create))
@@ -32,8 +33,17 @@ namespace GenericDemo.Controllers
                         await fs.FlushAsync();
                     }
 
+                    string saveFolder = "Uploads\\done";
+                    if (!Directory.Exists(saveFolder))
+                    {
+                        Directory.CreateDirectory(saveFolder);
+                    }
+                    string saveFileName = Path.ChangeExtension(randomName, ".txt");
+                    string savePath = Path.Combine(saveFolder, saveFileName);
+
                     TextFileProccessor proccessor = new TextFileProccessor();
                     var output = await proccessor.LoadData(filePath);
+                    await proccessor.SaveData(output, savePath);
 
                     response = "File uploaded successfully";
                 }

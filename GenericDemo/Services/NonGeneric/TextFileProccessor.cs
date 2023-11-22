@@ -25,5 +25,17 @@ namespace GenericDemo.Services.NonGeneric
 
             return output;
         }
+
+        public async Task SaveData(List<Gift> gifts, string filePath)
+        {
+            List<string> lines = new();
+
+            foreach (var gift in gifts)
+            {
+                lines.Add($"{gift.Name},{gift.Description},{gift.IsActive}");
+            }
+
+            await File.AppendAllLinesAsync(filePath, lines);
+        }
     }
 }
