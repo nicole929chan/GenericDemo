@@ -1,4 +1,6 @@
-﻿namespace GenericDemo.Services.Generic
+﻿using System.Text;
+
+namespace GenericDemo.Services.Generic
 {
     public class TextFileProcessor
     {
@@ -44,6 +46,38 @@
 
 
             return output;
+        }
+        public async Task SaveData<T>(List<T> data, string filePath) where T : class
+        {
+            List<string> lines = new();
+            StringBuilder line = new StringBuilder();
+
+            if (data == null || data.Count() == 0)
+            {
+                throw new ArgumentNullException("data", "You must populate the data parameter with at least one value.");
+            }
+
+            var cols = data[0].GetType().GetProperties();  // 以其中一筆物件取得所有欄位名稱
+
+            foreach (var col in cols)
+            {
+                line.Append(col.Name);
+                line.Append(",");
+            }
+            lines.Add(line.ToString().Substring(0, line.Length - 1));
+
+            foreach (var row in data)
+            {
+                line = new StringBuilder();
+                foreach (var col in cols)
+                {
+                    line.Append(col.GetValue(row));  // 以欄位名稱對物件取值(好神奇)
+                    line.Append(",");
+                }
+                lines.Add(line.ToString().Substring(0, line.Length - 1));
+            }
+
+            File.WriteAllLinesAsync(filePath, lines);
         }
     }
 }

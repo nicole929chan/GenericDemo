@@ -41,6 +41,7 @@ namespace GenericDemo.Controllers
 
                     TextFileProcessor processor = new TextFileProcessor();
                     var output = await processor.LoadData<Gift>(filePath);
+                    await processor.SaveData(output, savePath);
 
                     response = "File uploaded successfully";
                 }
